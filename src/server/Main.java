@@ -6,8 +6,11 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Main {
+	public static ArrayList<User> users;
+
 	public static void main(String[] args) throws IOException {
-		ArrayList<Socket> users = new ArrayList<>();
+		Main.users = new ArrayList<>();
+
 		int port = 7890;
 
 		ServerSocket s = new ServerSocket(port);
@@ -15,8 +18,12 @@ public class Main {
 		while (true)
 		{
 			Socket so = s.accept();
-			users.add(so);
-			ClientHandler h = new ClientHandler(so, users);
+
+			User u = new User(so);
+
+			Main.users.add(u);
+
+			ClientHandler h = new ClientHandler(so, u);
 			Thread t = new Thread(h);
 			t.start();
 		}

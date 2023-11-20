@@ -2,43 +2,52 @@ package server;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 
 public class ClientHandler implements Runnable {
 	private Socket s;
-	private ArrayList<Socket> users;
+	private User   user;
 
-	public ClientHandler(Socket s, ArrayList<Socket> users)
+	public ClientHandler(Socket s, User user)
 	{
-		this.s     = s;
-		this.users = users;
+		this.s    = s;
+		this.user = user;
 	}
 
 	@Override
 	public void run() {
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(this.s.getInputStream()));
-
 			System.out.printf("Client connecté : %s\n", this.s.getInetAddress());
 
-			while (this.s.isConnected())
+			while (!this.user.isClosed())
 			{
-				String str = in.readLine();
+				String str  = user.receiveLine();
+				String line = String.format("%s > %s", this.user.getName(), str);
 
-				System.out.printf("%s -> %s\n", this.s.getInetAddress(), str);
+				if (!str.startsWith("/"))
+				{
+					System.out.println(line);
 
-				for (Socket s : this.users) {
-					if (s.isConnected())
+					for (User u : Main.users) {
+						if (!u.isClosed()) {
+							u.sendLine(line);
+						}
+					}
+				}
+				else
+				{
+					String   rawCommand = str.substring(1);
+					String[] args = rawCommand.split(" ");
+					String   command = args[0];
+
+					System.out.printf("%s  use command  %s\n", this.user.getName(), command);
+
+					if (command.equals("name") && args.length >= 2)
 					{
-						PrintWriter out = new PrintWriter(s.getOutputStream(), true);
-
-						out.println(str);
-						out.close();
+						System.out.printf("%s à changer son nom en %s\n", this.user.getName(), args[1]);
+						this.user.setName(args[1]);
 					}
 				}
 			}
-
-			in.close();
 
 			System.out.printf("Client déconnecté : %s\n", this.s.getInetAddress());
 		} catch (IOException ignored) {}

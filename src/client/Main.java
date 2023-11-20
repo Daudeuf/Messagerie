@@ -11,37 +11,47 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		Scanner scanner = new Scanner(System.in);
 
-		System.out.printf("IP : ");
+		System.out.print("IP : ");
 		String hostName = scanner.nextLine();
 
-		System.out.printf("Port : ");
+		System.out.print("Port : ");
 		int portNumber = scanner.nextInt();
 
-		Socket srv = new Socket(hostName, portNumber);
+		scanner.close();
 
-		PrintWriter    out = new PrintWriter(srv.getOutputStream(), true);
+		Socket srv = new Socket(hostName, portNumber);
+		Window w   = new Window( srv );
 
 		new Thread(() -> {
-			try {
-				BufferedReader in  = new BufferedReader(new InputStreamReader(srv.getInputStream()));
+			try
+			{
+				BufferedReader in = new BufferedReader(new InputStreamReader(srv.getInputStream()));
 
-				String str = in.readLine();
+				while (!srv.isClosed()) {
+					String str = in.readLine();
 
-				System.out.println(str);
+					System.out.println(str);
+					Thread.sleep(500);
+
+					w.addTextLine(str);
+				}
+
+				System.out.println("closed !");
 
 				in.close();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
 			}
+			catch (Exception ignored) {}
 		}).start();
 
-		while (srv.isConnected())
+		w.setVisible( true );
+
+		/*while (srv.isConnected())
 		{
 			String str = scanner.nextLine();
 			out.println(str);
-		}
+		}*/
 
-		out.close();
-		scanner.close();
+		// srv.close();
+		// out.close();
 	}
 }
