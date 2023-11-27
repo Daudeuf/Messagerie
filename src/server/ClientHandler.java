@@ -2,6 +2,7 @@ package server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class ClientHandler implements Runnable {
 	private Socket s;
@@ -36,15 +37,23 @@ public class ClientHandler implements Runnable {
 				else
 				{
 					String   rawCommand = str.substring(1);
-					String[] args = rawCommand.split(" ");
-					String   command = args[0];
+					String[] args       = rawCommand.split(" ");
+					String   command    = args[0];
 
 					System.out.printf("%s  use command  %s\n", this.user.getName(), command);
 
 					if (command.equals("name") && args.length >= 2)
 					{
-						System.out.printf("%s à changer son nom en %s\n", this.user.getName(), args[1]);
-						this.user.setName(args[1]);
+						StringBuilder name = new StringBuilder();
+
+						for (int i = 1; i < args.length; i++) {
+							name.append((name.isEmpty()) ? "" : " ").append(args[i]);
+						}
+						
+						System.out.printf("%s à changer son nom en %s\n", this.user.getName(), name);
+
+						this.user.sendLine(String.format("Votre nouveau nom est %s\n", name));
+						this.user.setName(String.valueOf(name));
 					}
 				}
 			}

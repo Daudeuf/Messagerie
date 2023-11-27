@@ -24,7 +24,8 @@ public class Main {
 			Main.users.add(u);
 
 			ClientHandler h = new ClientHandler(so, u);
-			Thread t = new Thread(h);
+			Thread        t = new Thread(h);
+
 			t.start();
 		}
 	}

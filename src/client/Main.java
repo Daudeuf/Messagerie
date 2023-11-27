@@ -44,14 +44,5 @@ public class Main {
 		}).start();
 
 		w.setVisible( true );
-
-		/*while (srv.isConnected())
-		{
-			String str = scanner.nextLine();
-			out.println(str);
-		}*/
-
-		// srv.close();
-		// out.close();
 	}
 }
